@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import ShopingCart from "../components/ShopingCart";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 type ShopingCartProviderProps = {
   children: ReactNode
@@ -28,7 +29,7 @@ export function useShopingCart() {
 // Cart provider
 export function ShoppingCartProvider({ children }: ShopingCartProviderProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [cartItems, setCardItems] = useState<CartItem[]>([])
+  const [cartItems, setCardItems] = useLocalStorage<CartItem[]>("shopingcart", [])
   const cartQuantity = cartItems.reduce((quantity, item) => item.quantity + quantity, 0)
 
   // Functions for ShopingCarContext
@@ -38,7 +39,7 @@ export function ShoppingCartProvider({ children }: ShopingCartProviderProps) {
     return  cartItems.find(item => item.id === id)?.quantity || 0
   }
   function increaseCartQuantity(id: number) {
-    setCardItems(currtItems => {
+    setCardItems((currtItems: CartItem[]) => {
       if(currtItems.find(item => item.id === id) == null) {
         return [...currtItems, {id, quantity: 1}]
       } else {
@@ -52,7 +53,7 @@ export function ShoppingCartProvider({ children }: ShopingCartProviderProps) {
     })
   }
   function decreaseCartQuantity(id: number) {
-    setCardItems(currtItems => {
+    setCardItems((currtItems: CartItem[]) => {
       if(currtItems.find(item => item.id === id)?.quantity === 1) {
         return currtItems.filter(item => item.id !== id)
       } else {
@@ -66,8 +67,8 @@ export function ShoppingCartProvider({ children }: ShopingCartProviderProps) {
     })
   }
   function removeFromCart(id: number) {
-    setCardItems(currenItems => {
-      return currenItems.filter(item => item.id !== id)
+    setCardItems((currtItems: CartItem[]) => {
+      return currtItems.filter(item => item.id !== id)
     })
   }
 
